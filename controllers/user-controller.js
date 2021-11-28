@@ -1,12 +1,14 @@
-const { User, Thought } = require('../models'); // have to work on the models after
+const { User, Thoughts } = require('../models'); // have to work on the models after
 
 const userController = {
     getAllUsers(req, res) { // this is to make sure that we can get all the users for the website
         User.find({})
-        .populate({
-            path: 'thoughts'
-        })
-        .select('-__v') // pizza hunt helped with this part
+            .populate({
+                path: 'thoughts'
+            })
+            .populate({
+                path: 'friends'
+            })
         .then(dbUserData => res.json(dbUserData))
         .catch(err => {
             console.log(err);
@@ -25,13 +27,13 @@ const userController = {
             })
             .then(dbUserData => res.json(dbUserData))
             .catch(err => {
-                console.lof(err);
+                console.log(err);
                 res.sendStatus(400);
             });
     },
 
     // Create a user
-    createUser( {body}, res) {
+    createUser({ body }, res) {
         User.create(body)
         .then(dbUserData =>res.json(dbUserData))
         .catch(err => 
@@ -67,8 +69,8 @@ const userController = {
     // Add Friend
     addFriend({ params }, res) {
         User.findOneAndUpdate(
-            {_id: req.params.userId},
-            { $push: {friends: req.params.friendID}},
+            {_id: params.userId},
+            { $push: {friends: params.friendId}},
             {runValidators: true, new:true}
         )
         .then(dbUserData => {
