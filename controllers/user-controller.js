@@ -1,7 +1,8 @@
-const { User, Thoughts } = require('../models'); // have to work on the models after
+const { User, Thoughts } = require('../models');
 
 const userController = {
-    getAllUsers(req, res) { // this is to make sure that we can get all the users for the website
+    // Get all users
+    getAllUsers(req, res) {
         User.find({})
             .populate({
                 path: 'thoughts'

@@ -9,7 +9,7 @@ const {
     createReaction,
     deleteReaction
 
-} = require('../../controllers/thought-controller')
+} = require('../../controllers/thought-controller.js')
 
 // when you are trying to write a thought
 router
