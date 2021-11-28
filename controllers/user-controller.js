@@ -53,7 +53,7 @@ const userController = {
 
     // Delete User 
     deleteUser({ params }, res) {
-        User.findOneAndUpdate({ _id: params.id })
+        User.findOneAndDelete({ _id: params.id })
         .then(dbUserData => res.json(dbUserData))
         .catch(err => res.json(err));
     },
@@ -66,7 +66,7 @@ const userController = {
             {runValidators: true, new:true}
         )
         .then(dbUserData => {
-            if (dbUserData) {
+            if (!dbUserData) {
                 res.status(404).json({ message: 'No user found with this ID!' });
                 return;
             }

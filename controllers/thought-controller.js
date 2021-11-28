@@ -1,12 +1,10 @@
 const { User, Thoughts } = require('../models');
 
-const thoughtController = {
+const thoughtsController = {
     //  get all the thoughts
     getAllThoughts(req, res) {
         Thoughts.find({})
-        .populate({
-            path: 'reactions'
-        })
+        .select('-__v')
         .then(dbThoughtsData => res.json(dbThoughtsData))
         .catch(err => {
             console.log(err);
@@ -20,22 +18,22 @@ const thoughtController = {
         .then(dbThoughtsData => res.json(dbThoughtsData))
         .catch(err => {
             console.log(err);
-            res.sendStatus(400); // just an error with no message
+            res.sendStatus(400);
         });
     },
 
     //Create A Thought
-    // This needs to be updated
-    createThought({ body }, res) {
+    createThought({ params, body }, res) {
         Thoughts.create(body)
-            .then(({ dbThoughtsData }) => {
+            .then(({ _id }) => {
                 return User.findOneAndUpdate(
                     {_id: body.userId},
-                    { $push: { thoughts: dbThoughtsData._id } },
+                    { $push: { thoughts: _id } }, // this links it to the _id that is trying to create a thought
                     {new: true }
                 );
             })
             .then(dbUserData => {
+                console.log(dbUserData);
                 if(dbUserData) {
                     res.status(404).json({ message: 'No thoughts found with this ID!' });
                     return;
@@ -48,9 +46,11 @@ const thoughtController = {
     // Update the thoughts
     updateThought({ params, body }, res) {
         Thoughts.findOneAndUpdate(
-            { _id: params.id }, body, { new: true, runValidators: true })
-        .then(dbThoughtsData => { // because we are trying to update the thought data that was just put and not the user data
-            if(dbThoughtsData) {
+            { _id: params.id }, 
+            body, 
+            { new: true, runValidators: true })
+        .then(dbThoughtData => { // changed from thoughts to thought because it is a single thought
+            if(dbThoughtData) {
                 res.status(404).json({ message: 'No Thought found with this ID' });
                 return;
             }
@@ -60,7 +60,7 @@ const thoughtController = {
     },
 
     // Delete the Thought
-    deleteThought({ params }, res) {
+    deleteThoughts({ params }, res) {
         Thoughts.findOneAndUpdate({ _id: params.id })
         .then(dbThoughtsData => (dbThoughtsData))
         .catch(err => res.json(err));
@@ -73,12 +73,12 @@ const thoughtController = {
             { $push: {reactions: body}},
             {runValidators: true, new: true}
         )
-        .then(dbThoughtData => {
-            if (!dbThoughtData) {
+        .then(dbThoughtsData => {
+            if (!dbThoughtsData) {
                 res.status(404).json({ message: 'No Thoughts found with this id'});
                 return;
             }
-            res.json(dbThoughtData);
+            res.json(dbThoughtsData);
         })
         .catch(err => res.json(err));
     },
@@ -90,16 +90,16 @@ const thoughtController = {
             { $pull: { reactions: {_id: params.reactionId}}},
             { new: true }
         )
-        .then(dbThoughtData => {
-            if(dbThoughtData) {
+        .then(dbThoughtsData => {
+            if(dbThoughtsData) {
                 res.status(404).json({ message: 'No Thoughts found with this ID'});
                 return;
             }
-            res.json(dbThoughtData);
+            res.json(dbThoughtsData);
         })
         .catch(err => res.json(err));
     }
 };
 
 
-module.exports = thoughtController;
+module.exports = thoughtsController;
