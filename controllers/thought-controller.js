@@ -4,7 +4,9 @@ const thoughtController = {
     //  get all the thoughts
     getAllThoughts(req, res) {
         Thoughts.find({})
-        .select('-__v')
+        .populate({
+            path: 'reactions'
+        })
         .then(dbThoughtsData => res.json(dbThoughtsData))
         .catch(err => {
             console.log(err);
@@ -26,15 +28,14 @@ const thoughtController = {
     // This needs to be updated
     createThought({ body }, res) {
         Thoughts.create(body)
-            .then(({ _id }) => {
+            .then(({ dbThoughtsData }) => {
                 return User.findOneAndUpdate(
                     {_id: body.userId},
-                    { $push: { thoughts: _id } },
+                    { $push: { thoughts: dbThoughtsData._id } },
                     {new: true }
                 );
             })
             .then(dbUserData => {
-                console.log(dbUserData);
                 if(dbUserData) {
                     res.status(404).json({ message: 'No thoughts found with this ID!' });
                     return;
@@ -46,9 +47,10 @@ const thoughtController = {
 
     // Update the thoughts
     updateThought({ params, body }, res) {
-        Thoughts.findOneAndUpdate({ _id: params.id }, body, { new: true, runValidators: true })
-        .then(dbThoughtData => { // becasue we are trying to update the thought data that was just put and not the user data
-            if(dbThoughtData) {
+        Thoughts.findOneAndUpdate(
+            { _id: params.id }, body, { new: true, runValidators: true })
+        .then(dbThoughtsData => { // because we are trying to update the thought data that was just put and not the user data
+            if(dbThoughtsData) {
                 res.status(404).json({ message: 'No Thought found with this ID' });
                 return;
             }
@@ -60,7 +62,7 @@ const thoughtController = {
     // Delete the Thought
     deleteThought({ params }, res) {
         Thoughts.findOneAndUpdate({ _id: params.id })
-        .then(dbThoughtData => (dbThoughtData))
+        .then(dbThoughtsData => (dbThoughtsData))
         .catch(err => res.json(err));
     },
 
