@@ -79,18 +79,30 @@ const userController = {
 
     deleteFriend({ params}, res) {
         User.findOneAndUpdate(
-            {_id: params,userId},
-            { $pull: {friends: params.friendID}},
+            { _id: params.userId},
+            { $pull: {friends: params.friendId}},
             {runValidators: true, new: true}
         )
-        .then(dbUserData => {
-            if(dbUserData) {
+        .then((dbUserData) => {
+            // console.log("dbUserData", dbUserData);
+            // console.log('doc', doc);
+            // console.log(Object.keys(dbUserData))
+            // console.log(Object.entries(dbUserData)[2][1])
+            //     console.log('dbUserData exists')
+            // if (dbUserData !== null && !Object.entries(dbUserData)[2][1]) {
+            //     res.status(404).json({ message: 'No User found with this ID'});
+            //     return
+            // }
+            if (!dbUserData) {
                 res.status(404).json({ message: 'No User found with this ID'});
                 return;
             }
             res.json(dbUserData);
         })
-        .catch(err => res.json(err));
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({err: err.message})
+        })
     }
 
 };

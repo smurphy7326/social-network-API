@@ -25,7 +25,7 @@ router
 
 // Id with friends
 router
-    .route('/:userId/friends/"friendId')
+    .route('/:userId/friends/:friendId')
     .post(addFriend)
     .delete(deleteFriend);
 

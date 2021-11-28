@@ -19,17 +19,18 @@ router
 
 // api thoughts with the id associated with it, when you can get put and delete
 router
-    .route('/id')
+    .route('/:id')
     .get(getThoughtsById)
     .put(updateThought)
     .delete(deleteThoughts)
 
-// Reactions with the ID 
+// Reactions with the ID   /api/thoughts/:thoughtId/reactions
+
 router
-    .route('./:thoughtId/reactions')
+    .route('/:thoughtId/reactions')
     .post(createReaction)
 
-// Delete different reactions
+// Delete different reactions  /api/thoughts/:thoughtId/reactions/:reactionId
 router
     .route('/:thoughtId/reactions/:reactionId').delete(deleteReaction)
     .delete(deleteReaction)
